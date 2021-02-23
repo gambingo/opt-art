@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw
+import matplotlib.pyplot as plt
 
 from utils import window
 
@@ -59,5 +60,13 @@ def plot_graph(ant_manager, show_pheromone=False):
     for n in g.nodes(data=True):
         y, x = n[1]["coords"]
         draw.regular_polygon((x, y, 1), fill=(0,0,0,255), n_sides=30)
+
+    if show_pheromone:
+        # Let's also include a histogram of pheromone levels
+        ph_levels = [e[-1]["pheromone"] for e in g.edges(data=True)]
+        plt.hist(ph_levels)
+        plt.title("Pheromone Levels Throughout the Graph")
+        plt.xlabel("Pheromone Build Up")
+        plt.ylabel("No. Paths")
 
     return img

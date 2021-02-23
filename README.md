@@ -29,3 +29,10 @@ incorporate evaporation to avoid local mins
 3. Toyed with levels but saw no improvement
 4. Began looking under the hood, discovered "first picks ratio"
 5. New goal is to optimize that
+
+
+#### Notes
+Interesting interesting interesting. Expectedly, the radius made it so there 
+were no more adjacent nodes but still nodes left to visit. Unexpectedly, the 
+path couldn't be closed at the end. Let's leave the radius out for now and 
+include it again once we're running this for higher nodes.

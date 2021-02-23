@@ -6,8 +6,9 @@ import pandas as pd
 
 
 class Ant:
-    def __init__(self, graph, radius=None, logging=False):
+    def __init__(self, graph, alpha, radius=None, logging=False):
         self.G = graph
+        self.alpha = alpha
         self.radius = radius
         self.first_picks = []
         self.logging = logging
@@ -27,7 +28,7 @@ class Ant:
             1. Get dropped onto a random node  
                 1.1 Record that you've been to this node.  
             2. Assess all the possible paths (determine probabilities) 
-            3. Choose another node  
+            3. Choose and move to another node.
                 2.1 Record Distance  
                 2.2 Record that you've been to this node.  
             4. When you've been to all nodes, go back to the start.
@@ -67,9 +68,28 @@ class Ant:
         Determine the probabilities for moving from the current node to any of
         the available adjacent nodes.
         """
+        # Normalized Levels
+        # We normalize all values to be between zero and one so that distance
         distances = [self.G[curr_node][ii]["distance"] for ii in adj_nodes]
-        percents = [1 - d/self.radius for d in distances]
-        distance_probs = [p/sum(percents) for p in percents]
+        distances = [d/sum(distances) for d in distances]
+
+        ph_levels = [self.G[curr_node][ii]["pheromone"] for ii in adj_nodes]
+        ph_levels = [p/sum(ph_levels) if sum(ph_levels) else 0 for p in ph_levels]
+
+        denominator = 0
+        for d, ph in zip(distances, ph_levels):
+            denominator += self.alpha*ph + (1-self.alpha)*d
+
+        probabilities = []
+        for d, ph in zip(distances, ph_levels):
+            probabilities.append(
+                (self.alpha*ph + (1-self.alpha)*d)/denominator
+            )
+
+        # Distance probabilities
+        # distances = [self.G[curr_node][ii]["distance"] for ii in adj_nodes]
+        # percents = [1 - d/self.radius for d in distances]
+        # distance_probs = [p/sum(percents) for p in percents]
 
         # I don't like this as is. I want this to be like real ants.
         # pheromone probs should be relative to a constant maximum
@@ -79,14 +99,17 @@ class Ant:
         # Then the lower levels probs get smaller
         # So, ok, maybe it should be out of a local max?
         # let's read
-        ph_levels = [self.G[curr_node][ii]["pheromone"] for ii in adj_nodes]
-        ph_probs = [p/sum(ph_levels) if sum(ph_levels) else 0 for p in ph_levels]
+
+        # Pheromone probabilities
+        # ph_levels = [self.G[curr_node][ii]["pheromone"] for ii in adj_nodes]
+        # ph_probs = [p/sum(ph_levels) if sum(ph_levels) else 0 for p in ph_levels]
 
         # I want them to have equal weight. They both need to be normalized
         # distance_probs = [d/max(distance_probs) for d in distance_probs]
         # ph_probs = [p/max(ph_probs) if max(ph_probs)>0 else 0 for p in ph_probs]
 
-        probabilities = [d+p for d,p in zip(distance_probs, ph_probs)]
+        # Summing probabilities
+        # probabilities = [d+p for d,p in zip(distance_probs, ph_probs)]
         
         # construct table for this node
         if self.logging:
