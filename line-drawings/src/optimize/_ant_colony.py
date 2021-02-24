@@ -6,7 +6,8 @@ import networkx as nx
 from .utils import window
 
 
-def optimize(self, num_iterations=20):
+def optimize(self, num_iterations=20, convergence_overide=False):
+    self.convergence_overide = convergence_overide
     for _ in range(num_iterations):
         # fastest_ant = self.release_ants()
         self.release_ants()
@@ -58,6 +59,7 @@ def calculate_ph_amount(self, ant):
 def update_solution(self):
     fastest_ant = sorted(self.ants, key=lambda a: a.distance_traveled)[0]
     self.iteration_best_history.append(fastest_ant.distance_traveled)
+    self.greediness_history.append(fastest_ant.first_pick_ratio*100)
     # print(f"The fastest ant completed its loop in {fastest_ant.distance_traveled} units.")
     if fastest_ant.distance_traveled < self.current_shortest_distance:
         self.current_shortest_distance = fastest_ant.distance_traveled
@@ -69,7 +71,7 @@ def convergence_detection(self):
     self.iteration_count += 1
     self.global_best_history.append(self.current_shortest_distance)
     self.unique_paths.append(len(set(a.distance_traveled for a in self.ants)))
-    if self.iteration_count > 100:
+    if self.iteration_count > 100 and not self.convergence_overide:
         if self.iteration_count % 20 == 0:
             if len(set(self.global_best_history[-100:])) == 1:
                 # The path is not getting any shorter
