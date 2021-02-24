@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 from ant import Ant
 from utils import window
@@ -15,8 +16,8 @@ class Optimize:
     def __init__(self, coordinates, num_ants,
                  radius=None, 
                  alpha=0.5,
-                #  deposition_rate=1.0, 
-                 evaporation_rate=0.1):
+                 evaporation_rate=0.1,
+                 deposition_factor=None):
         """TKTK"""
         self.G = self.make_graph(coordinates, radius=radius)
         if radius:
@@ -28,8 +29,8 @@ class Optimize:
         self.alpha = alpha
 
         self.ants = [Ant(self.G, self.radius, self.alpha) for _ in range(num_ants)]
-        # self.deposition_rate = deposition_rate
         self.evaporation_rate = evaporation_rate
+        self.deposition_factor = deposition_factor
         
         self.current_shortest_distance = \
             sum(e[2]["distance"] for e in self.G.edges(data=True))
@@ -85,7 +86,8 @@ class Optimize:
 
 
     def calculate_deposition_amount(self, ant):
-        ph = self.current_shortest_distance / ant.distance_traveled
+        # ph = self.current_shortest_distance / ant.distance_traveled
+        ph = self.deposition_factor / ant.distance_traveled
         ph = ph**2
         return ph
 
@@ -117,11 +119,6 @@ class Optimize:
         return False
 
 
-    #########################################################################    
-    ######################## Attached Plotting Tools ########################
-    #########################################################################
-
-
     def make_graph(self, chosen_points, radius):
         """Make the network graph from the list of coordinates"""
         G = nx.Graph()
@@ -150,23 +147,13 @@ class Optimize:
         return G
 
 
-    def plot_convergence(self):
-        """Optimistic function name"""
-        _, ax = plt.subplots()
-        ax.plot(self.global_best_history, label="Global Best", color="green", lw=1)
-        ax.scatter(range(self.iteration_count), self.iteration_best_history, alpha=0.6, s=2, label="Iteration Best")
-        plt.xlabel("Iteration")
-        plt.ylabel("Length of Shortest Path")
-        plt.title("Are the Ants Getting Faster?")
-        plt.legend()
+    #########################################################################    
+    ######################## Attached Plotting Tools ########################
+    #########################################################################
 
-
-    def plot_greediness(self):
-        ratios = [a.first_pick_ratio*100 for a in self.fastest_ants]
-        plt.plot(ratios)
-        plt.xlabel("Iteration")
-        plt.ylabel("Percent")
-        plt.title("Greediness\nPercent of times the fastest ant chose the most probable node")
+#TODO: Follow this link to combine files into a module
+#https://stackoverflow.com/questions/47561840/python-how-can-i-separate-functions-of-class-into-multiple-files/47562412
+    
 
 
 def euclidean_distance(p1, p2):
