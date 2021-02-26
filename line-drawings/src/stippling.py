@@ -23,12 +23,13 @@ class Stipple:
         self.darkness_values = None
         self.chosen_points = []
         self.rtree_idx = index.Index()
+        self.iteration_count = 0
 
 
     def make_greyscale(self, save_greyscale=True):
         img = self.original_img.convert("LA")
         if save_greyscale:
-            self.filename_greyscale = self.original_filename.split(".")[0] + "_greyscale.png"
+            self.filename_greyscale = self.original_filename.split(".png")[0] + "_greyscale.png"
             img.save(Path(self.filename_greyscale))
         return img
 
@@ -96,7 +97,8 @@ class Stipple:
             # Move point
             self.chosen_points[p_id] = (x_new, y_new, n)
             self.rtree_idx.delete(p_id, (p_x, p_y, p_x, p_y))
-            self.rtree_idx.insert(p_id, (x_new, y_new, x_new, y_new)) 
+            self.rtree_idx.insert(p_id, (x_new, y_new, x_new, y_new))
+            self.iteration_count += 1
 
 
     def draw_points(self, save_image=False, radius=None, include_coords=False, include_ids=False):
@@ -120,7 +122,10 @@ class Stipple:
                 draw.text((p[1], p[0]), f"({p[1]}, {p[0]})", fill="black")
 
         if save_image:
-            self.filename_points = self.original_filename.split(".")[0] + "_points.png"
+            k = len(self.chosen_points)
+            n = self.iteration_count
+            self.filename_points = self.original_filename.split(".png")[0] + \
+                f"_{k}_points" + f"_{n}_.png"
             self.dot_img.save(Path(self.filename_points))
         return self.dot_img
 

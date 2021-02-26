@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
@@ -6,7 +8,7 @@ from .utils import window
 
 
     
-def plot_path(self, show_pheromone=False):
+def plot_path(self, show_pheromone=False, save_image_filename=None):
     img = Image.new("RGBA", (512,512), color=(255,255,255,0))
     draw = ImageDraw.Draw(img)
 
@@ -33,10 +35,13 @@ def plot_path(self, show_pheromone=False):
         y, x = n[1]["coords"]
         draw.regular_polygon((x, y, 1), fill=(0,0,0,255), n_sides=30)
 
+    if save_image_filename:
+        img.save(Path(save_image_filename))
+
     return img
 
 
-def plot_graph(self, show_pheromone=True):
+def plot_graph(self, show_pheromone=True, save_image_filename=None):
     img = Image.new("RGBA", (512,512), color=(255,255,255,0))
     draw = ImageDraw.Draw(img)
 
@@ -70,11 +75,18 @@ def plot_graph(self, show_pheromone=True):
         plt.title("Pheromone Levels Throughout the Graph")
         plt.xlabel("Pheromone Build Up")
         plt.ylabel("No. Paths")
+        if save_image_filename:
+            filename = save_image_filename.split(".png")[0] + "_histogram.png"
+            plt.savefig(filename, dpi=150)
+
+    if save_image_filename:
+        filename = save_image_filename.split(".png")[0] + "_map.png"
+        img.save(Path(filename))
 
     return img
 
 
-def plot_convergence(self):
+def plot_convergence(self, save_image_filename=None):
     """Optimistic function name"""
     _, ax = plt.subplots()
     ax.plot(self.global_best_history, label="Global Best", color="green", lw=1)
@@ -83,17 +95,21 @@ def plot_convergence(self):
     plt.ylabel("Length of Shortest Path")
     plt.title("Are the Ants Getting Faster?")
     plt.legend()
+    if save_image_filename:
+        plt.savefig(save_image_filename, dpi=150)
 
 
-def plot_greediness(self):
+def plot_greediness(self, save_image_filename=None):
     """TODO: Base this function off actual history"""
     plt.plot(self.greediness_history)
     plt.xlabel("Iteration")
     plt.ylabel("Percent")
     plt.title("Greediness\nPercent of times the fastest ant chose the most probable node")
+    if save_image_filename:
+        plt.savefig(save_image_filename, dpi=150)
 
 
-def plot_unique_paths(self):
+def plot_unique_paths(self, save_image_filename=None):
     _, ax = plt.subplots()
     ax.plot(self.unique_paths)
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
@@ -101,3 +117,5 @@ def plot_unique_paths(self):
     plt.xlabel("Iteration")
     plt.ylabel("No. Unqiue Paths Ants are Following")
     plt.grid(True)
+    if save_image_filename:
+        plt.savefig(save_image_filename, dpi=150)

@@ -70,6 +70,7 @@ class Ant:
         """
         # Normalized Levels
         # We normalize all values to be between zero and one so that distance
+        # and pheromone levels have the same range
         distances = [self.G[curr_node][ii]["distance"] for ii in adj_nodes]
         distances = [d/sum(distances) for d in distances]
 
@@ -85,6 +86,7 @@ class Ant:
             probabilities.append(
                 (self.alpha*ph + (1-self.alpha)*d)/denominator
             )
+
 
         # Distance probabilities
         # distances = [self.G[curr_node][ii]["distance"] for ii in adj_nodes]
